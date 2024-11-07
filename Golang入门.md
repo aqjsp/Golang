@@ -135,7 +135,9 @@ fmt.Println(n8)
 // fmt.Println(n9)
 ```
 
-#### 7.2、基本数据类型和字符串类型之间的转换（Sprintf("", )）
+#### 7.2、基本数据类型和字符串类型之间的转换
+
+##### 方式一、Sprintf("", )
 
 ![Sprintf](https://cdn.jsdelivr.net/gh/aqjsp/Pictures/image-20241107225238132.png)
 
@@ -156,4 +158,70 @@ var n4 byte = 'a'
 var s4 string = fmt.Sprintf("%c", n4)
 fmt.Printf("s4对应的类型是： %T, s4 = %q \n", s4, s4)
 ```
+
+##### 方式二、strconv
+
+## 二、复杂数据类型
+
+### 1、指针
+
+```go
+var num int = 18
+// &符号+变量，就可以获取这个变量内存的地址
+fmt.Println(&num)
+
+// 定义一个指针变量：
+// var代表要声明一个变量
+// ptr 指针变量的名字
+// ptr 对应的类型是：*int 是一个指针类型 ，可以理解为 指向int类型的指针
+// &num 就是一个地址，是ptr变量的具体的值
+var ptr *int = &num
+fmt.Println(ptr)
+fmt.Println("ptr本身的存储空间的值：", &ptr)
+
+// 想获取ptr这个指针或者这个地址指向的那个数据
+fmt.Printf("ptr指向的数值：%v \n", *ptr)
+
+输出：
+0xc000084048
+0xc000084048
+ptr本身的存储空间的值： 0xc00004c008
+ptr指向的数值：18 
+```
+
+总结：
+
+1. &  取内存地址
+2. *根据地址取值
+
+#### 1.1、可以通过指针改变指向值
+
+```go
+var num int = 10
+fmt.Println(num)
+
+var ptr *int = &num
+*ptr = 20
+fmt.Println(num)
+```
+
+#### 1.2、指针变量接收的一定是地址值
+
+```go
+var ptr *int = num // 错误
+```
+
+#### 1.3、指针变量的地址不可以不匹配
+
+```go
+var ptr *float32 = &num
+```
+
+#### 1.4、基本数据类型（又叫值类型）
+
+都有对应的指针类型，形式为 * 数据类型，比如int对应的指针就是* int，float32对应的指针类型就是* float32，依次类推。
+
+### 2、
+
+## 三、运算符
 
