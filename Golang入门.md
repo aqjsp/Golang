@@ -6,10 +6,10 @@
 
 ```go
 var num3 int = 3
-var num4 int8 = 4
-var num5 int16 = 5
-var num6 int32 = 6
-var num7 int64 = 7
+var num4 int8 = 4      // 占1个字节   -2^7  ~ 2^7 - 1
+var num5 int16 = 5     // 占2个字节   -2^15 ~ 2^15 - 1
+var num6 int32 = 6     // 占4个字节   -2^31 ~ 2^31 - 1
+var num7 int64 = 7     // 占8个字节   -2^63 ~ 2^63 - 1
 ```
 
 ### 2、浮点类型
@@ -409,9 +409,190 @@ func main() {
 
 ### 4、defer关键字
 
-#### 4.1、定义
+在 Golang 中，`defer` 关键字用于在函数结束时执行一些代码。`defer` 语句的核心特点是无论函数如何结束——正常返回、遇到错误或是发生 `panic`——被 `defer` 的代码都会在函数退出前执行。因此，`defer` 常用于释放资源、关闭文件、解锁互斥锁等清理操作。
 
+#### `defer` 的基本语法和用法
 
+`defer` 语句在函数体内定义，需要跟随一个函数调用。当执行到 `defer` 语句时，Go 会记录该语句并推迟到当前函数返回时再执行。
+
+**语法**：
+
+```go
+defer functionName(args)
+```
+
+**示例**：
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Start")
+    defer fmt.Println("This is deferred")
+    fmt.Println("End")
+}
+```
+
+**输出**：
+
+```sql
+Start
+End
+This is deferred
+```
+
+在这个例子中，`defer fmt.Println("This is deferred")` 被推迟到 `main()` 函数即将结束时执行，所以它最后输出。
+
+#### `defer` 的执行顺序
+
+如果在一个函数中有多个 `defer` 语句，这些 `defer` 调用会按照后进先出的顺序（LIFO）执行。这类似于栈结构的后入先出。
+
+**示例**：
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    defer fmt.Println("First")
+    defer fmt.Println("Second")
+    defer fmt.Println("Third")
+}
+```
+
+**输出**：
+
+```sql
+Third
+Second
+First
+```
+
+`defer` 会按顺序将所有的调用入栈，在函数退出时逆序执行这些 `defer` 语句。
+
+#### `defer` 的常见用途
+
+1. **释放资源**：在操作文件、数据库连接等资源时，`defer` 可以确保它们在函数结束前正确释放。
+
+   ```go
+   package main
+   
+   import (
+       "fmt"
+       "os"
+   )
+   
+   func main() {
+       file, err := os.Open("test.txt")
+       if err != nil {
+           fmt.Println("Error opening file:", err)
+           return
+       }
+       defer file.Close() // 确保在函数结束时关闭文件
+   
+       // 读取文件内容
+       // ...
+   }
+   ```
+
+2. **解锁互斥锁**：在多线程程序中使用 `sync.Mutex` 或 `sync.RWMutex` 时，可以使用 `defer` 来确保锁在操作完成后正确解锁。
+
+   ```go
+   var mu sync.Mutex
+   
+   func criticalSection() {
+       mu.Lock()
+       defer mu.Unlock() // 确保在函数结束前解锁
+       
+       // 执行一些需要锁保护的操作
+   }
+   ```
+
+3. **捕获并处理异常**：在 Go 中，`defer` 配合 `recover` 可以捕获 `panic` 并处理，避免程序崩溃。
+
+   ```go
+   func safeDivision(a, b int) {
+       defer func() {
+           if r := recover(); r != nil {
+               fmt.Println("Recovered from panic:", r)
+           }
+       }()
+       
+       fmt.Println("Result:", a/b) // 若 b 为 0，会引发 panic
+   }
+   ```
+
+#### `defer` 的工作原理与参数评估
+
+`defer` 语句会在它定义时计算参数值，但会推迟执行实际的函数调用。这意味着 `defer` 语句捕获的是当前的参数值。
+
+**示例**：
+
+```go
+package main
+
+import "fmt"
+
+func printValue(val int) {
+    fmt.Println("Deferred value:", val)
+}
+
+func main() {
+    x := 10
+    defer printValue(x) // 此时 x 的值是 10
+    x = 20
+    fmt.Println("Updated value:", x)
+}
+```
+
+**输出**：
+
+```yaml
+Updated value: 20
+Deferred value: 10
+```
+
+尽管 `x` 在 `defer` 语句之后被更新为 20，但 `defer` 捕获的是当时的值（10），所以 `printValue(10)` 被推迟执行。
+
+#### `defer` 在返回值中的应用
+
+在有命名返回值的函数中，`defer` 可以修改返回值，因为 `defer` 语句会在返回前执行。
+
+**示例**：
+
+```go
+package main
+
+import "fmt"
+
+func modifyReturnValue() (result int) {
+    defer func() {
+        result += 10 // 修改命名返回值
+    }()
+    return 5
+}
+
+func main() {
+    fmt.Println(modifyReturnValue()) // 输出: 15
+}
+```
+
+在此例中，`result` 是命名返回值，函数返回值会在 `defer` 执行时被修改。
+
+#### 注意事项
+
+1. **性能**：`defer` 虽然方便，但在高性能需求的代码中需谨慎使用。因为 `defer` 的实现相对开销较高，尤其在大量循环中使用时可能会影响性能。
+2. **不适合实时性要求的操作**：由于 `defer` 的延迟执行特点，不适合对实时性要求高的操作场景。
+3. **参数捕获机制**：`defer` 在定义时捕获的参数可能与最终执行时的上下文不同，需注意避免误用。
+
+#### 总结
+
+- `defer` 用于推迟代码执行至函数退出前，适合资源管理、异常处理等场景。
+- `defer` 语句遵循后进先出顺序执行。
+- 其参数在定义时评估，实际调用在函数退出前。
 
 ### 5、系统函数
 
@@ -567,9 +748,125 @@ fmt.Println(now.Format("2006-01-02 15:04:05"))
 
 ##### 5.3.1、len
 
+`len` 用于获取容器类型的长度或大小。它适用于多种数据结构，包括数组、切片、字符串、映射（map）和通道（channel）。
+
+**语法**：
+
+```go
+len(v interface{}) int
+```
+
+- **数组**：返回数组的长度。
+- **切片**：返回切片当前包含的元素个数，而不是底层数组的容量。
+- **字符串**：返回字符串的字节数（注意：对于包含非 ASCII 字符的字符串，字节数可能不等于字符数）。
+- **映射（map）**：返回映射中的键值对数量。
+- **通道（channel）**：返回通道中排队等待接收的元素数量（适用于缓冲通道）。
+
+**示例**：
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    arr := [5]int{1, 2, 3, 4, 5}
+    slice := []int{1, 2, 3}
+    str := "hello"
+    m := map[string]int{"one": 1, "two": 2}
+    ch := make(chan int, 5)
+    ch <- 1
+    ch <- 2
+
+    fmt.Println("数组长度:", len(arr))   // 输出: 5
+    fmt.Println("切片长度:", len(slice)) // 输出: 3
+    fmt.Println("字符串长度:", len(str)) // 输出: 5
+    fmt.Println("映射长度:", len(m))     // 输出: 2
+    fmt.Println("通道长度:", len(ch))    // 输出: 2
+}
+```
+
 ##### 5.3.2、new
 
+`new` 用于分配内存，但只会返回类型的指针，并不会进行初始化。它适合用于一些简单的类型，例如数值类型、结构体等。`new` 返回的是指向类型的零值的指针。
+
+**语法**：
+
+```go
+new(Type) *Type
+```
+
+- **用法**：`new(T)` 会分配一个 T 类型的内存空间并返回指针，指针指向的值是类型 T 的零值。
+- `new` 主要用于需要一个指针类型而不需要额外初始化的场景，适合少量分配和直接访问的情况。
+
+**示例**：
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    p := new(int)     // 分配一个 int 类型的内存，初始值为 0
+    *p = 10           // 修改指针指向的值
+    fmt.Println(*p)   // 输出: 10
+
+    s := new([]int)   // 分配一个指向空切片的指针
+    fmt.Println(s)    // 输出: &[]
+}
+```
+
+**注意**：`new` 分配的只是内存，没有初始化。对于结构体类型 `new(T)` 创建的指针等价于 `&T{}`。
+
 ##### 5.3.3、make
+
+`make` 用于初始化和分配引用类型（即：切片、映射和通道）的内存空间。`make` 会返回一个初始化后的值，而不是指针。
+
+**语法**：
+
+```go
+make(t Type, size ...IntegerType) Type
+```
+
+- **切片（slice）**：`make([]T, len, cap)` 创建一个具有指定长度和容量的切片。
+- **映射（map）**：`make(map[K]V, hint)` 创建一个指定键值对数量（容量提示）的映射。
+- **通道（channel）**：`make(chan T, buffer)` 创建一个带缓冲区的通道。
+
+**示例**：
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    // 创建一个长度为 5 的整数切片
+    slice := make([]int, 5, 10)
+    fmt.Println("切片长度:", len(slice))  // 输出: 5
+    fmt.Println("切片容量:", cap(slice))  // 输出: 10
+
+    // 创建一个映射
+    m := make(map[string]int)
+    m["foo"] = 42
+    fmt.Println("映射:", m)               // 输出: map[foo:42]
+
+    // 创建一个缓冲区大小为 3 的通道
+    ch := make(chan int, 3)
+    ch <- 1
+    ch <- 2
+    fmt.Println("通道长度:", len(ch))     // 输出: 2
+}
+```
+
+**注意**：`make` 仅用于这三种类型，因为它不仅仅是分配内存，还初始化底层数据结构的相关信息。
+
+##### 总结对比
+
+| 函数   | 主要用途                           | 返回值            | 适用类型                       |
+| ------ | ---------------------------------- | ----------------- | ------------------------------ |
+| `len`  | 获取长度或大小                     | int               | 数组、切片、字符串、映射、通道 |
+| `new`  | 分配内存并返回指向零值的指针       | *T（类型的指针）  | 值类型（基本类型、结构体等）   |
+| `make` | 分配并初始化内存，返回初始化后的值 | T（初始化后的值） | 切片、映射、通道               |
 
 ## 六、错误处理
 
@@ -649,4 +946,357 @@ main end
 ```
 
 ## 七、数组
+
+### 7.1、命名
+
+```go
+var 数组名 [数组大小]数组类型
+```
+
+### 7.2、初始化
+
+```go
+第一种:
+var arr1 [3]int = [3]int{1,2,3}
+第二种：
+var arr2 = [3]int{4,5,6}
+第三种：
+var arr3 = [...]int{12,34,45,65,67}
+第四种：
+var arr4 = [...]int{2:22, 1:11, 3:33, 0:55}
+```
+
+### 7.3、类型
+
+数组长度属于数组类型。
+
+### 7.4、二维数组
+
+遍历
+
+方式一：for循环遍历
+
+方式二：for-range遍历
+
+```go
+func main() {
+	var arr [3][3]int = [3][3]int{
+		{1, 2, 3},
+		{4, 5, 6},
+		{7, 8, 9},
+	}
+	fmt.Println(arr)
+
+	// 方式一：for循环遍历
+	for i := 0; i < len(arr); i++ {
+		for j := 0; j < len(arr[i]); j++ {
+			fmt.Printf("arr[%d][%d] = %d \t", i, j, arr[i][j])
+		}
+		fmt.Println()
+	}
+
+	fmt.Println("-----------------")
+
+	// 方式二：range循环遍历
+	for i, v := range arr {
+		for j, v2 := range v {
+			fmt.Printf("arr[%d][%d] = %d \t", i, j, v2)
+		}
+		fmt.Println()
+	}
+}
+```
+
+## 八、切片---左闭右开
+
+切片是建立在数组之上
+
+```go
+func main() {
+	var arr [6]int = [6]int{3, 5, 6, 7, 8, 9}
+	// 切片是构建在数组之上
+	var slice []int = arr[2:5]
+	fmt.Println(slice)
+}
+```
+
+**切片（slice）** 是一种动态数组。切片提供了便捷、灵活的数组操作方式，底层结构可以动态增长或缩小。
+
+### 切片的底层结构
+
+在 Go 中，切片的底层是基于数组实现的，其底层结构由一个 `sliceHeader` 管理，定义在 `reflect` 包中，包含以下三部分：
+
+1. 指针（Pointer）：指向切片底层数组的起始位置。
+2. 长度（Length）：表示切片当前的长度，即切片实际存储的元素个数。
+3. 容量（Capacity）：表示从切片起始位置到底层数组末尾的最大可用空间。
+
+因此，切片可以表示为以下结构：
+
+```go
+type sliceHeader struct {
+    ptr    *elementType // 指向底层数组的指针
+    length int          // 当前切片长度
+    cap    int          // 当前切片的容量
+}
+```
+
+### 内存布局示意图
+
+假设有以下代码：
+
+```go
+arr := [5]int{1, 2, 3, 4, 5}
+s := arr[1:4]
+```
+
+在这段代码中，`arr` 是一个长度为 5 的数组，而 `s` 是一个切片，表示 `arr` 中从索引 1 到 3 的部分。底层内存布局如下：
+
+```go
+底层数组： [1, 2, 3, 4, 5]
+              ↑     ↑
+           起始位置   长度为3
+切片 s:   指向 arr[1]（值为2），长度为3，容量为4（从arr[1]到arr[4]）
+```
+
+- `s.ptr` 指向 `arr[1]` 的位置。
+- `s.length` 为 `3`，表示 `s` 包含的元素数量 `[2, 3, 4]`。
+- `s.cap` 为 `4`，因为从 `arr[1]` 开始到数组末尾一共有 4 个元素。
+
+### 切片扩容
+
+Go 的切片具有动态扩容能力，当切片使用 `append` 操作超出其容量时，Go 会分配一个新的、更大容量的底层数组，并将原切片的数据复制到新数组中。扩容机制一般遵循以下原则：
+
+1. **小切片（小于 1024 元素）**：每次扩容时，容量翻倍。
+2. **大切片（大于等于 1024 元素）**：每次扩容增加原来容量的 1/4 左右。
+
+举例：
+
+```go
+s := make([]int, 2, 2) // 创建一个长度为2，容量为2的切片
+s = append(s, 1)       // 超出容量，触发扩容
+```
+
+在 `append` 操作中，由于超出容量，Go 会分配一个新的切片，长度为 3，容量为 4，并将数据 `[0, 0, 1]` 复制到新切片。
+
+### 切片的共享与独立
+
+在使用切片时要注意切片可能会共享同一个底层数组。例如：
+
+```go
+arr := []int{1, 2, 3, 4, 5}
+s1 := arr[1:4]
+s2 := arr[2:5]
+s1[1] = 10
+fmt.Println(arr) // 输出：[1, 2, 10, 4, 5]
+```
+
+在这里，`s1` 和 `s2` 都指向了 `arr` 的一部分，因此修改 `s1` 的值会影响 `s2` 和 `arr`。要独立地使用切片，可以使用 `copy` 函数创建切片的副本。
+
+### 切片的拷贝
+
+通过 `copy` 函数来实现对切片的拷贝，`copy` 会复制切片的内容，但不会共享底层数组。这意味着拷贝后的切片与原切片独立存储，修改其中一个切片不会影响另一个。
+
+#### `copy` 函数的用法
+
+`copy` 函数的语法为：
+
+```go
+copy(dst, src []Type) int
+```
+
+- `dst` 是目标切片（拷贝到的切片），`src` 是源切片（被拷贝的切片）。
+- `copy` 返回复制的元素个数。它只会复制 `dst` 和 `src` 之间较小长度的部分。
+
+#### 示例代码
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    src := []int{1, 2, 3, 4, 5}
+    dst := make([]int, len(src))
+
+    // 使用 copy 函数将 src 拷贝到 dst
+    count := copy(dst, src)
+
+    fmt.Println("拷贝的元素个数:", count) // 输出：拷贝的元素个数: 5
+    fmt.Println("源切片:", src)        // 输出：源切片: [1 2 3 4 5]
+    fmt.Println("目标切片:", dst)       // 输出：目标切片: [1 2 3 4 5]
+
+    // 修改目标切片
+    dst[0] = 10
+    fmt.Println("修改后的源切片:", src) // 输出：修改后的源切片: [1 2 3 4 5]
+    fmt.Println("修改后的目标切片:", dst) // 输出：修改后的目标切片: [10 2 3 4 5]
+}
+```
+
+#### 结果说明
+
+1. `copy(dst, src)` 将 `src` 切片的内容逐一复制到 `dst` 切片中，两个切片的底层数据完全独立。
+2. 修改 `dst` 的元素不会影响到 `src`，因为 `dst` 中的数据是新拷贝的副本。
+
+## 九、映射map
+
+Go 语言中，`map` 是一种内置的数据结构，用于实现键值对（key-value）存储。它可以高效地通过键快速查找、插入、和删除数据。`map` 是无序的，键的顺序在迭代时不保证固定。
+
+### 基本语法与使用
+
+1. **声明和初始化**
+
+   使用 `make` 函数初始化一个 `map`：
+
+   ```go
+   m := make(map[string]int) // 键是字符串类型，值是整数类型
+   ```
+
+   或者在声明的同时初始化：
+
+   ```go
+   m := map[string]int{"apple": 1, "banana": 2, "cherry": 3}
+   ```
+
+2. **基本操作**
+
+   - **添加或更新键值对**：
+
+     ```go
+     m["apple"] = 5 // 更新或添加键 "apple" 的值为 5
+     ```
+
+   - **访问元素**：
+
+     ```go
+     value := m["apple"] // 获取键 "apple" 对应的值，若不存在则返回类型的零值
+     ```
+
+   - **删除键值对**：
+
+     使用 `delete` 函数从 `map` 中移除指定的键：
+
+     ```go
+     delete(m, "banana") // 删除键 "banana" 对应的键值对
+     ```
+
+   - **检测键是否存在**：
+
+     在访问 `map` 中的某个键时，可以使用双重赋值的形式来检查键是否存在：
+
+     ```go
+     value, ok := m["apple"]
+     if ok {
+         fmt.Println("键存在，值为:", value)
+     } else {
+         fmt.Println("键不存在")
+     }
+     ```
+
+### `map` 的底层实现原理
+
+Go 的 `map` 是基于哈希表实现的，通过哈希函数将键映射到特定的位置。每个位置可以存放一个或多个键值对，以应对哈希冲突。
+
+1. **哈希桶**：
+
+   `map` 将键值对分组存储在多个**桶**（bucket）中，每个桶中可以容纳若干个键值对。
+
+2. **哈希冲突**：
+
+   由于不同的键可能会被映射到相同的位置，Go 使用链表或开放寻址来解决冲突。在某些情况下，Go 会将冲突较多的桶再分成小桶进行分散存储。
+
+3. **动态扩容**：
+
+   当 `map` 中的键值对增加较多时，哈希表会自动扩容并重新分布桶，以保证查询和插入的性能。
+
+### 特性与限制
+
+1. **无序性**：
+
+   `map` 中的元素是无序的，迭代时每次的顺序可能会不同，Go 不保证 `map` 中的键的顺序。
+
+2. **并发安全性**：
+
+   `map` 不是并发安全的，在多线程环境下，多个 goroutine 同时读写 `map` 会导致竞态条件，通常需要使用 `sync.RWMutex` 进行加锁操作来保证安全。
+
+3. **键的类型**：
+
+   `map` 的键可以是任何可比较的类型，比如 `int`、`string`、`struct`（无切片、映射字段），但不能使用切片、映射、函数等不可比较的类型作为键。
+
+### 示例代码
+
+以下代码展示了 `map` 的基本使用：
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    // 初始化一个 map
+    m := map[string]int{"apple": 1, "banana": 2, "cherry": 3}
+
+    // 添加或更新元素
+    m["date"] = 4
+    m["apple"] = 5
+
+    // 检查某个键是否存在
+    value, ok := m["banana"]
+    if ok {
+        fmt.Println("banana 存在，值为:", value)
+    } else {
+        fmt.Println("banana 不存在")
+    }
+
+    // 删除元素
+    delete(m, "cherry")
+
+    // 遍历 map
+    for key, value := range m {
+        fmt.Printf("%s -> %d\n", key, value)
+    }
+}
+```
+
+### `map` 的零值和空 map
+
+- 一个未初始化的 `map` 的零值是 `nil`，操作一个 `nil` `map` 不会引发错误，但插入操作无效。
+
+  ```go
+  var m map[string]int
+  fmt.Println(m == nil) // 输出: true
+  ```
+
+### `map` 的使用场景
+
+`map` 非常适合需要快速查找的数据结构，如：
+
+- 统计字符或单词的出现频率
+- 记录对象的映射关系（如用户 ID 到用户信息）
+- 缓存查询结果以提高效率
+
+## 十、面向对象
+
+### 1、结构体
+
+### 2、方法
+
+方法和函数的区别
+
+### 3、跨包访问
+
+大写字母开头无问题，解决小写字母结构体：工厂模式
+
+### 4、封装
+
+### 5、继承
+
+注意事项：
+
+### 6、接口
+
+### 7、多态
+
+细节：多态数组
+
+### 8、断言
 
