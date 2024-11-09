@@ -1,2 +1,2 @@
-# golang
-golang学习总结
+# Golang
+Golang学习总结
