@@ -1278,6 +1278,162 @@ func main() {
 
 ### 1、结构体
 
+#### 1. 结构体的定义与使用
+
+结构体是用于将不同类型的数据字段组合在一起的一种数据类型，类似于其他语言的类。每个字段可以是不同的数据类型，结构体的实例可以包含所有字段的数据。
+
+##### 定义结构体
+
+```go
+type Person struct {
+    Name string
+    Age  int
+    Job  string
+}
+```
+
+在上面的例子中，`Person` 是一个结构体类型，它有 `Name`、`Age` 和 `Job` 三个字段。
+
+##### 创建结构体实例
+
+可以使用以下方法创建结构体的实例：
+
+```go
+// 方式一：字段赋值
+p1 := Person{Name: "Alice", Age: 30, Job: "Engineer"}
+
+// 方式二：创建指针
+p2 := &Person{Name: "Bob", Age: 25, Job: "Designer"}
+
+// 方式三：省略字段名（不推荐）
+// 这种方式取决于字段的顺序，容易出错
+p3 := Person{"Charlie", 35, "Manager"}
+```
+
+#### 2. 访问和修改结构体字段
+
+结构体的字段通过点运算符来访问和修改：
+
+```go
+fmt.Println(p1.Name) // 输出：Alice
+p1.Age = 31          // 修改年龄
+fmt.Println(p1.Age)  // 输出：31
+```
+
+#### 3. 方法绑定与接收者
+
+Go 没有类的概念，因此将方法绑定到结构体上来实现对象的行为。方法的接收者（receiver）定义了该方法的所属结构体。
+
+##### 定义方法
+
+可以将一个方法绑定到结构体上，类似于类中的方法：
+
+```go
+func (p Person) Greet() string {
+    return "Hello, my name is " + p.Name
+}
+```
+
+在这里，`(p Person)` 是接收者，表示该方法是 `Person` 结构体的一个方法。`Greet` 方法返回包含姓名的问候语。
+
+##### 使用方法
+
+```go
+fmt.Println(p1.Greet()) // 输出: Hello, my name is Alice
+```
+
+##### 指针接收者 vs 值接收者
+
+- **值接收者**：方法接收结构体的副本，对副本的修改不会影响原始结构体。
+- **指针接收者**：方法接收结构体的指针，指针接收者可以修改结构体的原始数据。
+
+通常，在需要修改结构体内部数据或提高性能时使用指针接收者：
+
+```go
+func (p *Person) UpdateJob(newJob string) {
+    p.Job = newJob
+}
+p1.UpdateJob("Artist")
+fmt.Println(p1.Job) // 输出: Artist
+```
+
+#### 4. 构造函数
+
+Go 中没有类构造函数，但可以定义一个函数来初始化和返回结构体实例，作为构造函数的替代。
+
+```go
+func NewPerson(name string, age int, job string) Person {
+    return Person{Name: name, Age: age, Job: job}
+}
+
+p4 := NewPerson("David", 28, "Developer")
+```
+
+这里 `NewPerson` 函数就相当于一个构造函数，用于创建 `Person` 结构体实例。
+
+#### 5. 组合与继承
+
+Go 不支持传统的继承，但通过**组合**（Composition）来实现类似的功能。结构体可以包含其他结构体，以共享字段和方法。
+
+##### 结构体嵌套
+
+```go
+type Address struct {
+    City    string
+    Country string
+}
+
+type Employee struct {
+    Person
+    Address
+    Position string
+}
+```
+
+在这里，`Employee` 结构体包含 `Person` 和 `Address`，可以访问这两个结构体的所有字段。
+
+##### 使用嵌套结构体
+
+```go
+e := Employee{
+    Person:   Person{Name: "Emma", Age: 26, Job: "Analyst"},
+    Address:  Address{City: "New York", Country: "USA"},
+    Position: "Data Analyst",
+}
+fmt.Println(e.Name) // 输出: Emma
+fmt.Println(e.City) // 输出: New York
+```
+
+#### 6. 面向对象特性总结
+
+Go 实现面向对象的特性主要依靠结构体和方法组合实现：
+
+- **封装**：通过结构体定义属性，方法定义行为，将数据和操作封装在一个结构体中。
+- **继承**：使用组合而非继承来复用代码，结构体可以嵌套其他结构体。
+- **多态**：通过接口（`interface`）来实现多态，允许不同的结构体实现相同的接口方法。
+
+#### 7. 内存布局与结构体
+
+在内存中，结构体是一个连续的数据块，字段顺序与定义顺序一致。对于嵌套的结构体，内存布局也是按照组合的顺序来排列。
+
+##### 示例
+
+一个内存示例如下：
+
+```go
+type Person struct {
+    Name string // 8字节 (假设)
+    Age  int    // 8字节
+}
+
+type Employee struct {
+    Person         // 嵌套的 Person，占用16字节
+    Position string // 8字节
+}
+```
+
+结构体 `Employee` 在内存中会以字段排列的顺序存储，`Person` 的字段在 `Employee` 的前半部分存储，紧接着存储 `Position` 字段。
+
 ### 2、方法
 
 方法和函数的区别
@@ -1302,3 +1458,20 @@ func main() {
 
 ## 十一、文件操作
 
+## 十二、协程和管道
+
+### 1、协程
+
+#### 1.1、主死从随
+
+#### 1.2、锁
+
+##### 1.2.1、互斥锁
+
+##### 1.2.2、读写锁
+
+### 2、管道
+
+#### 2.1、基础
+
+#### 2.2、遍历
