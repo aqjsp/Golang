@@ -1,0 +1,164 @@
+# 编译输出
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/dist/
+
+# 测试二进制文件
+*.test
+
+# 输出覆盖率文件
+*.out
+coverage.html
+
+# 依赖分析文件
+go.work
+
+# Go工作区文件
+go.work.sum
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Docker
+.dockerignore
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 配置文件（包含敏感信息）
+config/local.yaml
+config/production.yaml
+config/*.local.yaml
+
+# 证书文件
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# 备份文件
+*.bak
+*.backup
+
+# 缓存目录
+cache/
+.cache/
+
+# 构建缓存
+.build/
+build/
+
+# 文档生成
+docs/swagger.json
+docs/swagger.yaml
+docs/docs.go
+
+# 性能分析文件
+*.prof
+cpu.prof
+mem.prof
+
+# 调试文件
+debug
+__debug_bin
+
+# 供应商目录（如果使用vendor）
+vendor/
+
+# 模块缓存
+$GOPATH/pkg/mod/
+
+# 本地开发文件
+local/
+.local/
+
+# 监控数据
+prometheus_data/
+grafana_data/
+
+# 数据库数据
+postgres_data/
+redis_data/
+etcd_data/
+
+# Docker Compose覆盖文件
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Kubernetes文件
+k8s/secrets/
+*.secret.yaml
+
+# 测试数据
+testdata/
+test_output/
+
+# 性能测试结果
+benchmark_results/
+*.bench
+
+# 代码生成文件
+*.pb.go
+*.pb.gw.go
+*.swagger.json
+
+# 工具生成的文件
+mocks/
+*.mock.go
+
+# 安全扫描报告
+security_report/
+*.sarif
+
+# 依赖检查报告
+dependency_check/
+
+# 静态分析报告
+static_analysis/
+
+# 部署脚本生成的文件
+deploy/generated/
+
+# 本地配置覆盖
+config.local.yaml
+settings.local.json
