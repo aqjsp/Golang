@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 300" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="860" height="300" rx="12" fill="#fafafa"/>
+  <rect width="860" height="300" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="430" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">逃逸：编译器决定在栈还是堆，不是你写 new</text>
+  <rect x="30" y="56" width="390" height="210" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="225" y="84" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b5e20">留在栈</text>
+  <text x="60" y="120" font-size="13" font-family="ui-monospace, monospace" fill="#2e7d32">func f() int {</text>
+  <text x="80" y="144" font-size="13" font-family="ui-monospace, monospace" fill="#2e7d32">x := 1</text>
+  <text x="80" y="168" font-size="13" font-family="ui-monospace, monospace" fill="#2e7d32">return x</text>
+  <text x="60" y="192" font-size="13" font-family="ui-monospace, monospace" fill="#2e7d32">}</text>
+  <text x="60" y="230" font-size="12" fill="#37474f">没把地址交出去，x 跟栈帧一起没</text>
+  <rect x="440" y="56" width="390" height="210" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="635" y="84" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">逃到堆</text>
+  <text x="470" y="120" font-size="13" font-family="ui-monospace, monospace" fill="#e65100">func g() *int {</text>
+  <text x="490" y="144" font-size="13" font-family="ui-monospace, monospace" fill="#e65100">x := 1</text>
+  <text x="490" y="168" font-size="13" font-family="ui-monospace, monospace" fill="#e65100">return &amp;x</text>
+  <text x="470" y="192" font-size="13" font-family="ui-monospace, monospace" fill="#e65100">}</text>
+  <text x="470" y="230" font-size="12" fill="#37474f">地址活过返回，必须上堆；接口装箱同理</text>
+</svg>
