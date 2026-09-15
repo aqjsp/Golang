@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="900" height="360" rx="12" fill="#fafafa"/>
+  <rect width="900" height="360" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">nil 接口 vs 接口里装 nil 指针：两者 != nil</text>
+
+  <rect x="24" y="50" width="420" height="210" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="234" y="78" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b5e20">真 nil　var err error</text>
+  <rect x="44" y="96" width="180" height="70" rx="8" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="134" y="124" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">tab = nil</text>
+  <text x="134" y="144" text-anchor="middle" font-size="11" fill="#2e7d32">没有 itab</text>
+  <rect x="244" y="96" width="180" height="70" rx="8" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="334" y="124" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">data = nil</text>
+  <text x="334" y="144" text-anchor="middle" font-size="11" fill="#2e7d32">没有动态值</text>
+  <text x="234" y="192" text-anchor="middle" font-size="13" font-weight="bold" fill="#2e7d32">err == nil　→ true</text>
+  <text x="234" y="216" text-anchor="middle" font-size="12" fill="#1b5e20">两个字都是 0　成功路径 return nil</text>
+  <text x="234" y="240" text-anchor="middle" font-size="11" fill="#546e7a">在真 nil 接口上调方法：立刻炸（tab 空）</text>
+
+  <rect x="456" y="50" width="420" height="210" rx="10" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+  <text x="666" y="78" text-anchor="middle" font-size="14" font-weight="bold" fill="#b71c1c">typed nil　err = (*PathError)(nil)</text>
+  <rect x="476" y="96" width="180" height="70" rx="8" fill="#ffcdd2" stroke="#c62828"/>
+  <text x="566" y="118" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">tab = itab</text>
+  <text x="566" y="138" text-anchor="middle" font-size="11" fill="#c62828">*os.PathError × error</text>
+  <rect x="676" y="96" width="180" height="70" rx="8" fill="#ffcdd2" stroke="#c62828"/>
+  <text x="766" y="124" text-anchor="middle" font-size="13" font-weight="bold" fill="#b71c1c">data = nil</text>
+  <text x="766" y="144" text-anchor="middle" font-size="11" fill="#c62828">指针值是 0</text>
+  <text x="666" y="192" text-anchor="middle" font-size="13" font-weight="bold" fill="#c62828">err == nil　→ false</text>
+  <text x="666" y="216" text-anchor="middle" font-size="12" fill="#b71c1c">fmt 打印常是 &lt;nil&gt;，不要用打印判断</text>
+  <text x="666" y="240" text-anchor="middle" font-size="11" fill="#e57373">if err != nil 走进去，Error() 可能 panic</text>
+
+  <rect x="24" y="276" width="852" height="60" rx="8" fill="#fff8e1" stroke="#f9a825"/>
+  <text x="44" y="300" font-size="13" fill="#5d4037">iface = { tab *itab; data unsafe.Pointer }。== nil 看两个字都 0。返回具体类型变量，bad==false 时容易把 typed nil 装进去。</text>
+  <text x="44" y="322" font-size="12" fill="#78909c">修法：中间变量用 error，成功 return nil。对象本身不加 vptr，方法表挂在接口值上。C++ 虚表在对象头。</text>
+</svg>

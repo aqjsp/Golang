@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="900" height="340" rx="12" fill="#fafafa"/>
+  <rect width="900" height="340" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">无缓冲 channel：没有格子，发送方和接收方会合才过</text>
+
+  <rect x="24" y="50" width="250" height="170" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="149" y="80" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565c0">发送 G</text>
+  <rect x="44" y="96" width="210" height="44" rx="6" fill="#bbdefb" stroke="#1565c0"/>
+  <text x="149" y="124" text-anchor="middle" font-size="13" font-family="ui-monospace, monospace">ch &lt;- 1</text>
+  <text x="149" y="164" text-anchor="middle" font-size="12" fill="#1565c0">对方没到就 park</text>
+  <text x="149" y="186" text-anchor="middle" font-size="11" fill="#546e7a">不是放进队列</text>
+  <text x="149" y="206" text-anchor="middle" font-size="11" fill="#546e7a">格子数 = 0</text>
+
+  <rect x="300" y="70" width="300" height="130" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="450" y="98" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">make(chan int)　会合点</text>
+  <text x="450" y="124" text-anchor="middle" font-size="12" fill="#e65100">两边都到，值直接交手</text>
+  <text x="450" y="146" text-anchor="middle" font-size="12" fill="#bf360c">发送 happens-before 对应接收完成</text>
+  <text x="450" y="172" text-anchor="middle" font-size="11" fill="#5d4037">这是 channel 能当同步原语的根</text>
+
+  <line x1="274" y1="135" x2="298" y2="135" stroke="#e65100" stroke-width="2"/>
+  <polygon points="298,135 286,129 286,141" fill="#e65100"/>
+  <line x1="626" y1="135" x2="602" y2="135" stroke="#2e7d32" stroke-width="2"/>
+  <polygon points="602,135 614,129 614,141" fill="#2e7d32"/>
+
+  <rect x="626" y="50" width="250" height="170" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="751" y="80" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b5e20">接收 G</text>
+  <rect x="646" y="96" width="210" height="44" rx="6" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="751" y="124" text-anchor="middle" font-size="13" font-family="ui-monospace, monospace">&lt;-ch</text>
+  <text x="751" y="164" text-anchor="middle" font-size="12" fill="#2e7d32">对方没到就 park</text>
+  <text x="751" y="186" text-anchor="middle" font-size="11" fill="#546e7a">收到后 work() 一定做完</text>
+  <text x="751" y="206" text-anchor="middle" font-size="11" fill="#546e7a">（若发前写了共享变量）</text>
+
+  <rect x="24" y="236" width="420" height="78" rx="8" fill="#ffebee" stroke="#c62828"/>
+  <text x="44" y="262" font-size="13" font-weight="bold" fill="#b71c1c">当队列用：同一 G 既发又收 → 死锁</text>
+  <text x="44" y="284" font-size="12" fill="#c62828">ch &lt;- 1 永远等一个不存在的接收者。无人收、没有 select Done = G 泄漏。</text>
+  <text x="44" y="304" font-size="11" fill="#e57373">有缓冲才有格子；格子满了发送者同样要停。</text>
+
+  <rect x="456" y="236" width="420" height="78" rx="8" fill="#e8eaf6" stroke="#3f51b5"/>
+  <text x="476" y="262" font-size="13" font-weight="bold" fill="#1a237e">对照</text>
+  <text x="476" y="284" font-size="12" fill="#3949ab">C++ queue+mutex 真有格子。Python queue.Queue 默认无界。</text>
+  <text x="476" y="304" font-size="11" fill="#5c6bc0">锁的 happens-before 在 Unlock 与下一把 Lock 之间。两种都能同步，选语义清楚的那个。</text>
+</svg>

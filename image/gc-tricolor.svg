@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="900" height="360" rx="12" fill="#fafafa"/>
+  <rect width="900" height="360" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">三色标记：白还没扫到，灰是工作队列，黑扫完；标记结束仍白才是垃圾</text>
+
+  <rect x="24" y="50" width="270" height="150" rx="10" fill="#fff" stroke="#90a4ae" stroke-width="2"/>
+  <text x="159" y="78" text-anchor="middle" font-size="14" font-weight="bold" fill="#546e7a">白 White</text>
+  <rect x="44" y="92" width="110" height="50" rx="8" fill="#eceff1" stroke="#78909c"/>
+  <text x="99" y="122" text-anchor="middle" font-size="13">obj X</text>
+  <rect x="164" y="92" width="110" height="50" rx="8" fill="#eceff1" stroke="#78909c"/>
+  <text x="219" y="122" text-anchor="middle" font-size="13">垃圾?</text>
+  <text x="159" y="166" text-anchor="middle" font-size="12" fill="#546e7a">还没从根走到</text>
+  <text x="159" y="186" text-anchor="middle" font-size="11" fill="#78909c">结束时仍白 → 可扫掉</text>
+
+  <rect x="310" y="50" width="270" height="150" rx="10" fill="#fff8e1" stroke="#f9a825" stroke-width="2"/>
+  <text x="445" y="78" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57f17">灰 Grey</text>
+  <rect x="350" y="92" width="190" height="50" rx="8" fill="#ffe082" stroke="#f9a825"/>
+  <text x="445" y="122" text-anchor="middle" font-size="13" font-weight="bold">根 / 工作队列</text>
+  <text x="445" y="166" text-anchor="middle" font-size="12" fill="#e65100">自己活着，子指针没扫完</text>
+  <text x="445" y="186" text-anchor="middle" font-size="11" fill="#5d4037">弹出灰 → 白子涂灰 → 自己涂黑</text>
+
+  <rect x="596" y="50" width="280" height="150" rx="10" fill="#eceff1" stroke="#37474f" stroke-width="2"/>
+  <text x="736" y="78" text-anchor="middle" font-size="14" font-weight="bold" fill="#212121">黑 Black</text>
+  <rect x="616" y="92" width="240" height="50" rx="8" fill="#455a64"/>
+  <text x="736" y="122" text-anchor="middle" font-size="13" fill="#fff">已处理的活对象</text>
+  <text x="736" y="166" text-anchor="middle" font-size="12" fill="#37474f">自己和此刻的子指针都处理过</text>
+  <text x="736" y="186" text-anchor="middle" font-size="11" fill="#546e7a">灰队列空，标记结束</text>
+
+  <line x1="294" y1="125" x2="308" y2="125" stroke="#f9a825" stroke-width="2"/>
+  <polygon points="308,125 296,119 296,131" fill="#f9a825"/>
+  <line x1="580" y1="125" x2="594" y2="125" stroke="#37474f" stroke-width="2"/>
+  <polygon points="594,125 582,119 582,131" fill="#37474f"/>
+
+  <rect x="24" y="216" width="852" height="118" rx="8" fill="#e3f2fd" stroke="#1565c0"/>
+  <text x="44" y="242" font-size="13" font-weight="bold" fill="#0d47a1">并发 mutator 会破坏三色：黑不能只指向白（否则误回收）</text>
+  <text x="44" y="266" font-size="12" fill="#1565c0">1.8 起混合写屏障：覆盖堆指针时旧值涂灰（Yuasa），新值也涂灰（Dijkstra）。只在标记期开。</text>
+  <text x="44" y="288" font-size="12" fill="#1565c0">栈写入不走堆屏障；标记开始把栈当灰。现状是并发三色，不是 1.3 全量 STW 标记清除。</text>
+  <text x="44" y="314" font-size="12" fill="#546e7a">C++ RAII 确定析构，没有三色。Python RC 到 0 立刻走，环靠分代。Go 回收发生在之后某次 GC，RSS ≠ HeapAlloc。</text>
+</svg>

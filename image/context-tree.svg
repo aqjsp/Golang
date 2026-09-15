@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="900" height="360" rx="12" fill="#fafafa"/>
+  <rect width="900" height="360" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">父 ctx cancel，子 WithTimeout 一起取消；取消向下不向上</text>
+
+  <rect x="300" y="48" width="300" height="56" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="450" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">r.Context()　请求根</text>
+  <text x="450" y="90" text-anchor="middle" font-size="11" fill="#1565c0">客户端断开 / Shutdown 会 cancel</text>
+
+  <line x1="450" y1="104" x2="450" y2="124" stroke="#1565c0" stroke-width="2"/>
+  <polygon points="450,124 444,112 456,112" fill="#1565c0"/>
+
+  <rect x="260" y="124" width="380" height="52" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="450" y="146" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">WithTimeout(parent, 80ms)</text>
+  <text x="450" y="164" text-anchor="middle" font-size="11" fill="#e65100">子 deadline 不能晚于父　defer cancel() 释放 timer</text>
+
+  <line x1="340" y1="176" x2="200" y2="204" stroke="#e65100" stroke-width="2"/>
+  <polygon points="200,204 208,194 214,206" fill="#e65100"/>
+  <line x1="560" y1="176" x2="700" y2="204" stroke="#e65100" stroke-width="2"/>
+  <polygon points="700,204 686,202 692,190" fill="#e65100"/>
+
+  <rect x="24" y="208" width="340" height="70" rx="8" fill="#e8f5e9" stroke="#2e7d32"/>
+  <text x="194" y="236" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">叶子 SQL / Redis / HTTP</text>
+  <text x="194" y="258" text-anchor="middle" font-size="12" fill="#2e7d32">QueryContext / NewRequestWithContext</text>
+
+  <rect x="536" y="208" width="340" height="70" rx="8" fill="#e8f5e9" stroke="#2e7d32"/>
+  <text x="706" y="236" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">另一枝　svc.User(ctx, id)</text>
+  <text x="706" y="258" text-anchor="middle" font-size="12" fill="#2e7d32">select &lt;-ctx.Done() 在阻塞点退</text>
+
+  <rect x="24" y="292" width="420" height="48" rx="8" fill="#ffebee" stroke="#c62828"/>
+  <text x="44" y="312" font-size="12" fill="#b71c1c">http.Get 内部 Background()，取消灌不进去</text>
+  <text x="44" y="330" font-size="11" fill="#e57373">父先取消，子立刻 Done。子 cancel 不影响父。</text>
+
+  <rect x="456" y="292" width="420" height="48" rx="8" fill="#eceff1" stroke="#78909c"/>
+  <text x="476" y="312" font-size="12" fill="#37474f">ctx 是第一个参数，不进结构体。Value 只放请求元数据。</text>
+  <text x="476" y="330" font-size="11" fill="#78909c">后台：WithoutCancel + 自己的 timeout，cancel 在 goroutine 里 defer。</text>
+</svg>

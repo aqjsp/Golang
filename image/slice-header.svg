@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="900" height="360" rx="12" fill="#fafafa"/>
+  <rect width="900" height="360" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">slice header：ptr / len / cap；共享底层数组，append 打满后分叉</text>
+
+  <rect x="24" y="50" width="200" height="150" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="124" y="76" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">a 的 header</text>
+  <rect x="44" y="90" width="160" height="28" rx="4" fill="#fff" stroke="#1565c0"/>
+  <text x="124" y="109" text-anchor="middle" font-size="12" font-family="ui-monospace, monospace">ptr</text>
+  <rect x="44" y="122" width="160" height="28" rx="4" fill="#bbdefb" stroke="#1565c0"/>
+  <text x="124" y="141" text-anchor="middle" font-size="12" font-family="ui-monospace, monospace">len = 3</text>
+  <rect x="44" y="154" width="160" height="28" rx="4" fill="#90caf9" stroke="#1565c0"/>
+  <text x="124" y="173" text-anchor="middle" font-size="12" font-family="ui-monospace, monospace">cap = 3</text>
+
+  <rect x="24" y="214" width="200" height="78" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="124" y="240" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">b := a　拷头</text>
+  <text x="124" y="262" text-anchor="middle" font-size="12" fill="#1565c0">三个字拷到新盒子</text>
+  <text x="124" y="280" text-anchor="middle" font-size="11" fill="#546e7a">b[0]=9 → a 也看见</text>
+
+  <line x1="224" y1="118" x2="268" y2="118" stroke="#1565c0" stroke-width="2"/>
+  <polygon points="268,118 256,112 256,124" fill="#1565c0"/>
+  <line x1="224" y1="244" x2="268" y2="150" stroke="#1565c0" stroke-width="2"/>
+  <polygon points="268,150 256,142 260,160" fill="#1565c0"/>
+
+  <rect x="272" y="50" width="280" height="150" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="412" y="76" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">底层数组（一份）</text>
+  <rect x="292" y="92" width="70" height="44" rx="4" fill="#ffe0b2" stroke="#e65100"/>
+  <text x="327" y="120" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+  <rect x="368" y="92" width="70" height="44" rx="4" fill="#ffe0b2" stroke="#e65100"/>
+  <text x="403" y="120" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+  <rect x="444" y="92" width="70" height="44" rx="4" fill="#ffe0b2" stroke="#e65100"/>
+  <text x="479" y="120" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+  <text x="412" y="164" text-anchor="middle" font-size="12" fill="#e65100">容量够时改元素两边都看见</text>
+  <text x="412" y="184" text-anchor="middle" font-size="11" fill="#5d4037">64 位 header 本身 24 字节</text>
+
+  <rect x="568" y="50" width="308" height="242" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="722" y="76" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b5e20">b = append(b, 4)　分叉</text>
+  <text x="722" y="100" text-anchor="middle" font-size="12" fill="#2e7d32">cap 不够 → growslice 新数组</text>
+  <rect x="588" y="114" width="56" height="36" rx="4" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="616" y="138" text-anchor="middle" font-size="13" font-weight="bold">1</text>
+  <rect x="648" y="114" width="56" height="36" rx="4" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="676" y="138" text-anchor="middle" font-size="13" font-weight="bold">2</text>
+  <rect x="708" y="114" width="56" height="36" rx="4" fill="#c8e6c9" stroke="#2e7d32"/>
+  <text x="736" y="138" text-anchor="middle" font-size="13" font-weight="bold">3</text>
+  <rect x="768" y="114" width="80" height="36" rx="4" fill="#a5d6a7" stroke="#2e7d32"/>
+  <text x="808" y="138" text-anchor="middle" font-size="13" font-weight="bold">4</text>
+  <text x="722" y="172" text-anchor="middle" font-size="12" fill="#1b5e20">b 的 ptr 换成新数组</text>
+  <text x="722" y="194" text-anchor="middle" font-size="12" fill="#e65100">a 仍指旧数组 [1 2 3]</text>
+  <text x="722" y="216" text-anchor="middle" font-size="12" fill="#c62828">此后 b[0]=9，a[0] 仍是 1</text>
+  <text x="722" y="244" text-anchor="middle" font-size="11" fill="#546e7a">函数形参同样只拷头</text>
+  <text x="722" y="264" text-anchor="middle" font-size="11" fill="#546e7a">append 改的是函数里那份头</text>
+  <text x="722" y="282" text-anchor="middle" font-size="11" fill="#78909c">s[1:] 指针挪到下标 1，共享数组</text>
+
+  <text x="450" y="328" text-anchor="middle" font-size="12" fill="#546e7a">C++ vector 赋值深拷元素。Python b=a 绑同一 list。Go 夹在中间：头是值，数组是共享的。</text>
+  <text x="450" y="348" text-anchor="middle" font-size="11" fill="#78909c">容量够像 Python 共享；扩容后像「意外的深拷贝」。旧头仍钉住旧数组，GC 按头的 ptr 扫。</text>
+</svg>

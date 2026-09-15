@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="900" height="340" rx="12" fill="#fafafa"/>
+  <rect width="900" height="340" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">两 goroutine 同时写 map → fatal，不是 panic，recover 接不住</text>
+
+  <rect x="24" y="50" width="200" height="160" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="124" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">goroutine A</text>
+  <rect x="44" y="96" width="160" height="40" rx="6" fill="#bbdefb" stroke="#1565c0"/>
+  <text x="124" y="122" text-anchor="middle" font-size="12" font-family="ui-monospace, monospace">m[1] = 1</text>
+  <text x="124" y="160" text-anchor="middle" font-size="12" fill="#1565c0">写时设 hashWriting</text>
+  <text x="124" y="182" text-anchor="middle" font-size="11" fill="#546e7a">标志位，尽力检测</text>
+
+  <rect x="248" y="50" width="200" height="160" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="348" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">hmap（一份）</text>
+  <rect x="268" y="96" width="160" height="70" rx="8" fill="#ffe0b2" stroke="#e65100"/>
+  <text x="348" y="124" text-anchor="middle" font-size="13" font-weight="bold" fill="#bf360c">map[int]int</text>
+  <text x="348" y="146" text-anchor="middle" font-size="11" fill="#e65100">赋值拷 *hmap，表共享</text>
+  <text x="348" y="188" text-anchor="middle" font-size="11" fill="#5d4037">无内置锁</text>
+
+  <rect x="472" y="50" width="200" height="160" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="572" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">goroutine B</text>
+  <rect x="492" y="96" width="160" height="40" rx="6" fill="#bbdefb" stroke="#1565c0"/>
+  <text x="572" y="122" text-anchor="middle" font-size="12" font-family="ui-monospace, monospace">m[2] = 2 或读</text>
+  <text x="572" y="160" text-anchor="middle" font-size="12" fill="#1565c0">看见写标志就炸</text>
+  <text x="572" y="182" text-anchor="middle" font-size="11" fill="#546e7a">读+写同样 fatal</text>
+
+  <line x1="224" y1="130" x2="246" y2="130" stroke="#c62828" stroke-width="2"/>
+  <polygon points="246,130 234,124 234,136" fill="#c62828"/>
+  <line x1="472" y1="130" x2="450" y2="130" stroke="#c62828" stroke-width="2"/>
+  <polygon points="450,130 462,124 462,136" fill="#c62828"/>
+
+  <rect x="696" y="50" width="180" height="160" rx="10" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+  <text x="786" y="88" text-anchor="middle" font-size="13" font-weight="bold" fill="#b71c1c">fatal error</text>
+  <text x="786" y="114" text-anchor="middle" font-size="11" fill="#c62828">concurrent map</text>
+  <text x="786" y="132" text-anchor="middle" font-size="11" fill="#c62828">read and map write</text>
+  <text x="786" y="160" text-anchor="middle" font-size="12" fill="#b71c1c">进程直接打死</text>
+  <text x="786" y="182" text-anchor="middle" font-size="11" fill="#e57373">不是 panic</text>
+  <text x="786" y="198" text-anchor="middle" font-size="11" fill="#e57373">recover 无效</text>
+
+  <rect x="24" y="226" width="852" height="90" rx="8" fill="#fff8e1" stroke="#f9a825"/>
+  <text x="44" y="252" font-size="13" font-weight="bold" fill="#f57f17">检测是尽力而为，没命中仍是 data race，结果未定义</text>
+  <text x="44" y="276" font-size="12" fill="#5d4037">保护：sync.Mutex / RWMutex 包住所有读写；特定场景 sync.Map。不要「我只读」当同步。</text>
+  <text x="44" y="298" font-size="12" fill="#78909c">C++ unordered_map 并发是 UB，不会专门 fatal。Python dict 在 GIL 下单线程字节码，无 GIL 同样要锁。</text>
+</svg>

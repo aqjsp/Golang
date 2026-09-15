@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="900" height="360" rx="12" fill="#fafafa"/>
+  <rect width="900" height="360" rx="12" fill="none" stroke="#e0e0e0"/>
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">GMP：P 绑 M 才跑 Go 代码；G 在 P 本地队列，空了去偷</text>
+
+  <rect x="24" y="50" width="210" height="130" rx="10" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="129" y="76" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565c0">M　OS 线程</text>
+  <text x="129" y="100" text-anchor="middle" font-size="12" fill="#1565c0">真正被内核调度</text>
+  <text x="129" y="120" text-anchor="middle" font-size="12" fill="#1565c0">无 P 不能跑 Go 代码</text>
+  <text x="129" y="144" text-anchor="middle" font-size="11" fill="#546e7a">syscall 可多于 GOMAXPROCS</text>
+  <text x="129" y="164" text-anchor="middle" font-size="11" fill="#546e7a">阻塞 syscall 另拉 M 接手 P</text>
+
+  <line x1="234" y1="115" x2="268" y2="115" stroke="#1565c0" stroke-width="2"/>
+  <polygon points="268,115 256,109 256,121" fill="#1565c0"/>
+  <text x="251" y="104" text-anchor="middle" font-size="10" fill="#1565c0">绑</text>
+
+  <rect x="272" y="50" width="356" height="130" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="450" y="76" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">P　逻辑处理器 × GOMAXPROCS</text>
+  <rect x="292" y="88" width="150" height="36" rx="6" fill="#ffe0b2" stroke="#e65100"/>
+  <text x="367" y="112" text-anchor="middle" font-size="12" fill="#e65100">runnext 优先槽</text>
+  <rect x="452" y="88" width="156" height="36" rx="6" fill="#ffcc80" stroke="#e65100"/>
+  <text x="530" y="112" text-anchor="middle" font-size="12" fill="#e65100">本地队列 256</text>
+  <text x="450" y="148" text-anchor="middle" font-size="11" fill="#bf360c">mcache / GC 工作缓冲也在 P 上</text>
+  <text x="450" y="166" text-anchor="middle" font-size="11" fill="#5d4037">满了把一半踢到全局队列</text>
+
+  <line x1="628" y1="115" x2="662" y2="115" stroke="#e65100" stroke-width="2"/>
+  <polygon points="662,115 650,109 650,121" fill="#e65100"/>
+
+  <rect x="666" y="50" width="210" height="130" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="771" y="76" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b5e20">G　goroutine</text>
+  <text x="771" y="100" text-anchor="middle" font-size="12" fill="#2e7d32">初始栈 ~2 KiB</text>
+  <text x="771" y="120" text-anchor="middle" font-size="12" fill="#2e7d32">go f() 不是 OS 线程</text>
+  <text x="771" y="144" text-anchor="middle" font-size="11" fill="#1b5e20">runnable / running</text>
+  <text x="771" y="164" text-anchor="middle" font-size="11" fill="#546e7a">waiting / syscall / dead</text>
+
+  <rect x="24" y="196" width="852" height="130" rx="8" fill="#eceff1" stroke="#78909c"/>
+  <text x="44" y="222" font-size="13" font-weight="bold" fill="#37474f">findrunnable：runnext → 本地队列 → 全局（周期性 / 本地空）→ netpoll → 从别的 P 偷一半</text>
+  <text x="44" y="246" font-size="12" fill="#455a64">还没有：解绑 P，M 去睡。全局队列有锁，不是主通路。每约 61 次调度看一眼，防饿死。</text>
+  <text x="44" y="270" font-size="12" fill="#455a64">work stealing：空闲 P 从忙 P 本地队列偷一半。1.14 起信号抢占，纯计算循环也会被打断。</text>
+  <text x="44" y="294" font-size="12" fill="#78909c">C++ std::thread 是 1:1。Python threading 1:1 + GIL。Go 把 M:N 做进 runtime：十万 G 争的是 GOMAXPROCS 个 P。</text>
+  <text x="44" y="314" font-size="11" fill="#90a4ae">要跑用户代码必须 M+P+G 三件套。LockOSThread 把 G 钉死在 M 上，贵。</text>
+</svg>
