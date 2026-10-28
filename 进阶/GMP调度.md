@@ -511,13 +511,13 @@ func main() {
 
 ### 2、schedtrace
 
-```
+```text
 GODEBUG=schedtrace=1000 ./app
 ```
 
 每隔 1 秒打一行调度摘要：G 的数量、P 的状态、有多少在 syscall。`scheddetail=1` 更啰嗦。这是看「是不是大量 G 卡在 runnable」「M 是不是在 syscall 里堆起来」的第一刀，比先上 pprof 轻。
 
-```
+```text
 gomaxprocs=8 idleprocs=2 threads=12 spinningthreads=0
 ```
 

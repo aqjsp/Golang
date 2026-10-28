@@ -212,7 +212,7 @@ func allocStorm() {
 
 ### 3、GOMEMLIMIT：1.19 起的软上限
 
-```
+```text
 GOMEMLIMIT=512MiB
 ```
 
@@ -464,7 +464,7 @@ type B struct {
 
 ### 1、`GODEBUG=gctrace=1`
 
-```
+```text
 GODEBUG=gctrace=1 ./app
 ```
 

@@ -4,7 +4,7 @@
 
 ## 🏗️ 项目架构
 
-```
+```text
 micro_service/
 ├── api-gateway/              # API网关
 ├── services/                 # 业务服务

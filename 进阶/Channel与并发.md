@@ -581,7 +581,7 @@ func get() int64 { return n.Load() }
 
 ### 4、`-race`
 
-```
+```bash
 go test -race ./...
 go run -race .
 go build -race -o app

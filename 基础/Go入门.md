@@ -41,14 +41,14 @@ defer f.Close()
 
 Go 的编译单元是 **package**，不是单个 `.go` 文件。同一个目录下所有 `.go` 文件必须声明同一个 `package` 名，它们共享顶层声明，像被粘成一个大文件。跨目录才是另一个包。模块（module）是包的版本化集合，根上放 `go.mod`：
 
-```
+```text
 example.com/demo
 ├── go.mod
 ├── main.go
 └── internal/conf/conf.go
 ```
 
-```
+```text
 module example.com/demo
 
 go 1.22
@@ -62,7 +62,7 @@ C++ 的对应物是 CMake 工程 + 头文件包含路径；Python 的对应物�
 
 ### 2、常用命令与 import
 
-```
+```bash
 go mod init example.com/demo
 go get github.com/jackc/pgx/v5@v5.5.0
 go mod tidy    # 按源码实际 import 增删依赖，写 go.sum

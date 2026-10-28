@@ -191,7 +191,7 @@
 **接口描述**: 根据用户ID获取用户信息
 
 **请求头**:
-```
+```go
 Authorization: Bearer {token}
 ```
 
@@ -225,7 +225,7 @@ Authorization: Bearer {token}
 **接口描述**: 更新用户信息
 
 **请求头**:
-```
+```go
 Authorization: Bearer {token}
 ```
 
@@ -274,7 +274,7 @@ Authorization: Bearer {token}
 **接口描述**: 删除用户（软删除）
 
 **请求头**:
-```
+```go
 Authorization: Bearer {token}
 ```
 
@@ -299,7 +299,7 @@ Authorization: Bearer {token}
 **接口描述**: 获取用户列表（分页）
 
 **请求头**:
-```
+```go
 Authorization: Bearer {token}
 ```
 
@@ -346,7 +346,7 @@ Authorization: Bearer {token}
 **接口描述**: 创建新订单
 
 **请求头**:
-```
+```go
 Authorization: Bearer {token}
 ```
 
@@ -392,7 +392,7 @@ Authorization: Bearer {token}
 **接口描述**: 创建支付订单
 
 **请求头**:
-```
+```go
 Authorization: Bearer {token}
 ```
 
@@ -453,7 +453,7 @@ Authorization: Bearer {token}
 
 ### JWT Token格式
 
-```
+```text
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 

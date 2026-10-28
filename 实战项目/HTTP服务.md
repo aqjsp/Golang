@@ -51,7 +51,7 @@ C++ 里这相当于：`asio` 的 `cancellation_slot` 从 acceptor 灌到 socket 
 
 教学项目按能粘贴来排。Go 1.22+，无第三方。
 
-```
+```text
 httpsvc/
   go.mod
   main.go                      # 听端口、信号、Shutdown
@@ -62,7 +62,7 @@ httpsvc/
   internal/api/handler_test.go # httptest：成功 / 超时 / panic
 ```
 
-```
+```text
 module example.com/httpsvc
 
 go 1.22
@@ -735,7 +735,7 @@ func WithTrace(next http.Handler) http.Handler { return withTrace(next) }
 
 ### 2、`main.go` 的 `go.mod` 旁跑起来
 
-```
+```bash
 cd httpsvc
 go mod init example.com/httpsvc
 # 粘贴上述文件
@@ -745,7 +745,7 @@ go run .
 
 另一个终端：
 
-```
+```bash
 curl -s localhost:8080/healthz
 curl -s localhost:8080/users/1
 curl -s -D- localhost:8080/users/9
